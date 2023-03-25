@@ -11,8 +11,6 @@ defmodule Msgsrv.Application do
       Msgsrv.Server
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Msgsrv.Supervisor]
     Supervisor.start_link(children, opts)
   end

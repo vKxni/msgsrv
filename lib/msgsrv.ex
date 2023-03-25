@@ -8,10 +8,13 @@ defmodule Msgsrv.Server do
   @type message :: {message_id, String.t()}
 
   @doc """
-  The API functions
+  The API functions we define for the GenServer, handling them below using handle callbacks
+
+  Grab current session PID:
+  => Supervisor.which_children(Msgsrv.Supervisor)
   """
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, [], opts)
+  def start_link(_opts \\ []) do
+    GenServer.start_link(__MODULE__, [], name: Msgsrv.Server)
   end
 
   @spec join(server_pid :: pid, user :: user_id) :: :ok
@@ -59,6 +62,7 @@ defmodule Msgsrv.Server do
     end
   end
 
+  # handling messages, adding them to the state and onto the cache
   def handle_cast({:send_message, message}, %{messages: messages} = state) do
     :ets.insert(:msgsrv_table, {self(), message})
     new_messages = [message | messages]
@@ -82,6 +86,7 @@ defmodule Msgsrv.Server do
     {:noreply, new_state}
   end
 
+  # setup ets cache table
   defp setup_table(state) do
     :ets.new(:msgsrv_table, [:named_table, :set, :public])
     state
